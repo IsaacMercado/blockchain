@@ -30,7 +30,7 @@ function App() {
 }
 */
 
-const endpoint = '/blockchain/mine_block'
+const endpoint = '/blockchain/mine_block/';
 
 class App extends Component {
   state = {
@@ -45,7 +45,7 @@ class App extends Component {
   componentDidMount() {
     axios.get(endpoint)
       .then(res => {
-        this.setState({ 
+        this.setState({
           message: res.data.message,
           index: res.data.index,
           timestamp: res.data.timestamp,

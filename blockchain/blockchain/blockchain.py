@@ -1,12 +1,11 @@
 from urllib.parse import urlparse
+from django.utils import timezone
 import json
 import hashlib
-import datetime
 import requests
 
 
 class Blockchain:
-
     def __init__(self):
         self.chain = []
         self.transactions = []
@@ -14,11 +13,13 @@ class Blockchain:
         self.nodes = set()
 
     def create_block(self, nonce, previous_hash):
-        block = {'index': len(self.chain) + 1,
-                 'timestamp': str(datetime.datetime.now()),
-                 'nonce': nonce,
-                 'previous_hash': previous_hash,
-                 'transactions': self.transactions}
+        block = {
+            'index': len(self.chain) + 1,
+            'timestamp': timezone.now().isoformat(),
+            'nonce': nonce,
+            'previous_hash': previous_hash,
+            'transactions': self.transactions
+        }
         self.transactions = []
         self.chain.append(block)
         return block
@@ -58,10 +59,12 @@ class Blockchain:
         return True
 
     def add_transaction(self, sender, receiver, amount, time):
-        self.transactions.append({'sender': sender,
-                                  'receiver': receiver,
-                                  'amount': amount,
-                                  'time': str(datetime.datetime.now())})
+        self.transactions.append({
+            'sender': sender,
+            'receiver': receiver,
+            'amount': amount,
+            'time': timezone.now().isoformat()
+        })
         previous_block = self.get_last_block()
         return previous_block['index'] + 1
 

@@ -1,15 +1,10 @@
-import datetime
-import json
-
 from uuid import uuid4
 
+from django.utils import timezone
 from django.http import Http404
-
+from braces.views import CsrfExemptMixin
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-
-from braces.views import CsrfExemptMixin
 
 from .blockchain import Blockchain
 
@@ -17,7 +12,7 @@ from .blockchain import Blockchain
 # Creating our Blockchain
 blockchain = Blockchain()
 # Creating an address for the node running our server
-node_address = str(uuid4()).replace('-', '')
+node_address = uuid4().hex
 root_node = 'e36f0158f0aed45b3bc755dc52ed4560d'
 
 
@@ -35,7 +30,7 @@ class MineBlockAPIView(APIView):
             sender=root_node,
             receiver=node_address,
             amount=1.15,
-            time=str(datetime.datetime.now())
+            time=timezone.now().isoformat()
         )
         block = blockchain.create_block(nonce, previous_hash)
 
@@ -107,12 +102,14 @@ class ConnectNodeAPIView(CsrfExemptMixin, APIView):
 
         if nodes is None:
             return Http404("No node")
-        
+
         for node in nodes:
             blockchain.add_node(node)
 
-        data = {'message': 'All the nodes are now connected. The Sudocoin Blockchain now contains the following nodes:',
-                'total_nodes': list(blockchain.nodes)}
+        data = {
+            'message': 'All the nodes are now connected. The Sudocoin Blockchain now contains the following nodes:',
+            'total_nodes': list(blockchain.nodes)
+        }
 
         return Response(data)
 
@@ -124,10 +121,14 @@ class ReplaceChainAPIView(APIView):
 
     def get(self, request, *args, **kwargs):
         if blockchain.replace_chain():
-            data = {'message': 'The nodes had different chains so the chain was replaced by the longest one.',
-                    'new_chain': blockchain.chain}
+            data = {
+                'message': 'The nodes had different chains so the chain was replaced by the longest one.',
+                'new_chain': blockchain.chain
+            }
         else:
-            data = {'message': 'All good. The chain is the largest one.',
-                    'actual_chain': blockchain.chain}
+            data = {
+                'message': 'All good. The chain is the largest one.',
+                'actual_chain': blockchain.chain
+            }
 
         return Response(data)

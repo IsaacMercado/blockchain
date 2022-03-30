@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Form, Container, Col, Row, Button } from 'react-bootstrap';
 import axios from 'axios';
 
-const postEndpoint = '/blockchain/add_transaction'
-const getEndpoint = '/blockchain/get_chain'
+const postEndpoint = '/blockchain/add_transaction/';
+const getEndpoint = '/blockchain/get_chain/';
 
 class Send extends Component {
     state = {
@@ -29,26 +29,23 @@ class Send extends Component {
     }
 
     componentDidMount() {
-        axios.get(getEndpoint)
-            .then(res => {
-                const sender = res.data.chain[1].transactions[0].receiver;
-                this.setState({ sender });
-            })
+        axios.get(getEndpoint).then(res => {
+            const sender = res.data.chain[1].transactions[0].receiver;
+            this.setState({ sender });
+        })
     }
 
     handleSubmit(event) {
         event.preventDefault();
-
         axios.post(postEndpoint, {
             "sender": this.state.sender,
             "receiver": this.state.recipient,
             "amount": this.state.amount,
             "time": this.state.time
+        }).then(res => {
+            console.log(res);
+            console.log(res.data);
         })
-            .then(res => {
-                console.log(res);
-                console.log(res.data);
-            })
     }
 
     render() {
